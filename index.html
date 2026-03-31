@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>FitGain AI 💪</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            font-family: Arial;
+            margin: 0;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+        }
+
+        .container {
+            max-width: 420px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+            animation: fadeIn 0.8s ease-in;
+        }
+
+        h2, h3 {
+            text-align: center;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 10px;
+            border: none;
+            outline: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: #ff9800;
+            border: none;
+            border-radius: 20px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            transform: scale(1.03);
+        }
+
+        .result-card {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 15px;
+            animation: slideUp 0.5s ease;
+        }
+
+        canvas {
+            margin-top: 20px;
+            background: white;
+            border-radius: 10px;
+            width: 100% !important;
+        }
+
+        /* 🔥 Nutrition Cards */
+        .nutrition-section {
+            margin-top: 30px;
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+        }
+
+        .food-card {
+            background: rgba(255,255,255,0.15);
+            padding: 12px;
+            border-radius: 15px;
+            backdrop-filter: blur(8px);
+            transition: 0.3s;
+            text-align: center;
+        }
+
+        .food-card:hover {
+            transform: scale(1.05);
+            background: rgba(255,255,255,0.25);
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            margin-top: 25px;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        @keyframes fadeIn {
+            from {opacity: 0;}
+            to {opacity: 1;}
+        }
+
+        @keyframes slideUp {
+            from {transform: translateY(20px); opacity: 0;}
+            to {transform: translateY(0); opacity: 1;}
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                max-width: 600px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <div class="card">
+        <h2>💪 FitGain AI</h2>
+
+        <input type="number" id="age" placeholder="Age">
+        <input type="number" id="height" placeholder="Height (cm)">
+        <input type="number" id="current_weight" placeholder="Current Weight (kg)">
+        <input type="number" id="target_weight" placeholder="Target Weight (kg)">
+        <input type="number" id="months" placeholder="Months">
+
+        <select id="diet_type">
+            <option value="nonveg">Non-Veg</option>
+            <option value="veg">Veg</option>
+        </select>
+
+        <button onclick="getPlan()">🔥 Generate Plan</button>
+
+        <div id="result"></div>
+
+        <canvas id="chart"></canvas>
+
+        <!-- 🔥 Nutrition Cards -->
+        <div class="nutrition-section">
+            <h3>🥗 Nutrition Guide</h3>
+            <div class="card-grid">
+                <div class="food-card">🥚 Egg<br>Protein: 6g<br>70 kcal</div>
+                <div class="food-card">🥛 Milk<br>Protein: 8g<br>120 kcal</div>
+                <div class="food-card">🧀 Paneer<br>Protein: 18g<br>265 kcal</div>
+                <div class="food-card">🍌 Banana<br>Carbs: 25g<br>105 kcal</div>
+                <div class="food-card">🍞 Roti<br>Carbs: 20g<br>100 kcal</div>
+                <div class="food-card">🍚 Rice<br>Carbs: 45g<br>200 kcal</div>
+                <div class="food-card">🍗 Chicken<br>Protein: 27g<br>165 kcal</div>
+            </div>
+        </div>
+
+        <!-- 🔥 Footer -->
+        <footer>
+            © 2026 KPSolutions | FitGain AI 💪
+        </footer>
+
+    </div>
+</div>
+
+<script>
+let chart;
+
+function getPlan() {
+    const data = {
+        age: parseInt(document.getElementById("age").value),
+        height: parseInt(document.getElementById("height").value),
+        current_weight: parseInt(document.getElementById("current_weight").value),
+        target_weight: parseInt(document.getElementById("target_weight").value),
+        months: parseInt(document.getElementById("months").value),
+        diet_type: document.getElementById("diet_type").value
+    };
+
+    fetch("http://127.0.0.1:5000/plan", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+    })
+    .then(res => res.json())
+    .then(d => {
+
+        document.getElementById("result").innerHTML = `
+            <div class="result-card">
+                <h3>${d.plan_type}</h3>
+
+                <p>🎯 Goal: ${d.category} → Target ${d.target_weight} kg</p>
+                <p>📏 BMI: ${d.bmi}</p>
+
+                <hr>
+
+                <p>📊 Calories: ${d.calories}</p>
+                <p>💪 Protein: ${d.protein}g</p>
+                <p>🍚 Carbs: ${d.carbs}g</p>
+                <p>🥑 Fats: ${d.fats}g</p>
+
+                <hr>
+
+                <p>🥚 Breakfast: ${d.diet.Breakfast}</p>
+                <p>🍛 Lunch: ${d.diet.Lunch}</p>
+                <p>☕ Evening: ${d.diet["Evening Snack"]}</p>
+                <p>🌙 Dinner: ${d.diet.Dinner}</p>
+
+                <hr>
+
+                <p>⚠️ ${d.note}</p>
+            </div>
+        `;
+
+        const ctx = document.getElementById("chart").getContext("2d");
+
+        if (chart) chart.destroy();
+
+        chart = new Chart(ctx, {
+            type: "doughnut",
+            data: {
+                labels: ["Protein", "Carbs", "Fats"],
+                datasets: [{
+                    data: [d.protein, d.carbs, d.fats]
+                }]
+            }
+        });
+    });
+}
+</script>
+
+</body>
+</html>
