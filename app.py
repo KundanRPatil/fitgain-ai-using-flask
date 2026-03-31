@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from flask import render_template
 
 app = Flask(__name__)
 CORS(app)
@@ -7,7 +8,7 @@ CORS(app)
 
 @app.route("/")
 def home():
-    return "FitGain AI Running!"
+    return render_template("index.html")
 
 
 @app.route("/plan", methods=["POST", "OPTIONS"])
